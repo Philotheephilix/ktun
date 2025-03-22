@@ -20,7 +20,7 @@ def get_urgency_analysis(transcription,emotion):
     - High: emergencies, safety issues, time-critical matters
     - Moderate: important but not immediate concerns
     - Low: general inquiries or minor issues
-
+    use double quotes to surround all key and value pairs dont use single quotes
     Only respond with the JSON object, no additional text."""
 
         user_prompt = f"Transcription: {transcription}\nEmotion: {emotion}"

@@ -100,10 +100,36 @@ def transcribe_audio():
         urgency_analysis = get_urgency_analysis(transcription, emotion_response)
         urgency_analysis["emotion"] = emotion_response
         urgency_analysis["transcription"] = transcription
-        urgency_analysis["phone_number"] = phone_number
+        urgency_analysis["phone_number"] = '9342015579'
         urgency_analysis["ip_address"] = ip_address
         urgency_analysis["timestamp"] = datetime.now().isoformat()
-        print(ip_address)
+    #     urgency_analysis.update({
+    #         "voicemailReceived": False,
+    #         "AIProcessingCompleted": False,
+    #         "PoliceAssigned": False,
+    #         "PoliceDispatched": False,
+    #         "PoliceArrived": False,
+    #         "ActionTaken": False,
+    #         "Resolved": False
+    #     })
+    #     print(ip_address)
+    # #     const complaintData = {
+    # #     trackingId,
+    # #     description,
+    # #     locationAddress,
+    # #     evidenceFiles: evidenceCids,
+    # #     evidenceDescription,
+    # #     contactName: contactName  'NIL',
+    # #     contactEmail: contactEmail  'NIL',
+    # #     createdAt: new Date().toISOString(),
+    # #     voicemailReceived: false,
+    # #     AIProcessingCompleted: false,
+    # #     PoliceAssigned: false,
+    # #     PoliceDispatched: false,
+    # #     PoliceArrived: false,
+    # #     ActionTaken: false,
+    # #     Resolved: false
+    # #   };
         ipfs_hash = upload_to_pinata(str(urgency_analysis))
         db.store_in_db({'ph':phone_number,'ipfs_hash': ipfs_hash})
         return jsonify({

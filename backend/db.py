@@ -15,5 +15,18 @@ def fetch_from_db(cid):
 def fetch_all():
     return db.all()
 
+import requests
+
 def fetch_from_phone(phone):
-    return [item for item in db.all() if item.get("ph") == phone]
+    data = [item for item in db.all() if item.get("ph") == phone]
+    contents = []
+
+    for item in data:
+        ipfs_url = f"https://gateway.pinata.cloud/ipfs/{item['ipfs_hash']}"
+        try:
+            response = requests.get(ipfs_url)
+            contents.append(response.json())
+        except Exception as e:
+            contents.append({"error": str(e), "hash": item['ipfs_hash']})
+    
+    return contents
