@@ -14,16 +14,40 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ComplaintTypeSelector } from "@/components/complaint-type-selector"
+import { useComplaintStore } from '../../../lib/stores/complaintStore'
 
 export default function NewComplaintPage() {
   const router = useRouter()
-  const [step, setStep] = useState(1)
-  const [complaintType, setComplaintType] = useState("")
-  const [description, setDescription] = useState("")
-  const [location, setLocation] = useState("")
-  const [contactMethod, setContactMethod] = useState("phone")
-  const [termsAccepted, setTermsAccepted] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const {
+    step,
+    complaintType,
+    description,
+    locationAddress,
+    locationNotes,
+    contactFirstName,
+    contactLastName,
+    contactPhone,
+    contactEmail,
+    contactMethod,
+    termsAccepted,
+    isSubmitting,
+    trackingId,
+    setStep,
+    setComplaintType,
+    setDescription,
+    setLocationAddress,
+    setLocationNotes,
+    setContactFirstName,
+    setContactLastName,
+    setContactPhone,
+    setContactEmail,
+    setContactMethod,
+    setTermsAccepted,
+    setIsSubmitting,
+    setTrackingId,
+    reset,
+  } = useComplaintStore()
+
 
   const handleNext = () => {
     setStep(step + 1)
@@ -164,25 +188,25 @@ export default function NewComplaintPage() {
                   <Input
                     id="address"
                     placeholder="Enter the address"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    value={locationAddress}
+    onChange={(e) => setLocationAddress(e.target.value)}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="location-notes">Additional Location Notes</Label>
                   <Textarea
-                    id="location-notes"
-                    placeholder="Provide any additional details about the location"
-                    rows={3}
-                  />
+    value={locationNotes}
+    onChange={(e) => setLocationNotes(e.target.value)}
+  />
+
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button variant="outline" onClick={handleBack}>
                   Back
                 </Button>
-                <Button onClick={handleNext} disabled={!location}>
+                <Button onClick={handleNext} disabled={!locationAddress}>
                   Next
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -323,7 +347,7 @@ export default function NewComplaintPage() {
 
                   <div className="border rounded-md p-4">
                     <h3 className="font-medium mb-2">Location</h3>
-                    <p>{location || "123 Main Street, Cityville"}</p>
+                    <p>{locationAddress || "123 Main Street, Cityville"}</p>
                   </div>
 
                   <div className="border rounded-md p-4">

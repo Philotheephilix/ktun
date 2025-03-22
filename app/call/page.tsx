@@ -14,7 +14,20 @@ export default function DialerApp() {
   const [audioUrl, setAudioUrl] = useState<string>("")
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [ipAddress, setIpAddress] = useState(null);
+  useEffect(() => {
+    const fetchIpAddress = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        setIpAddress(data.ip);
+      } catch (error) {
+        console.error('Error fetching IP address:', error);
+      }
+    };
 
+    fetchIpAddress();
+  }, []);
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -35,14 +48,7 @@ export default function DialerApp() {
         setAudioUrl(url)
         
         // Save locally
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `recording-${Date.now()}.wav`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-
-        // Send to server
+        
         await sendToServer(audioBlob)
       }
 
@@ -71,14 +77,15 @@ export default function DialerApp() {
     setIsProcessing(true)
     try {
       const formData = new FormData()
-      formData.append("audio", audioBlob, `recording-${Date.now()}.wav`)
+      formData.append("file", audioBlob, `recording-${Date.now()}.wav`)
       formData.append("metadata", JSON.stringify({
-        phoneNumber,
-        duration: callDuration,
-        timestamp: new Date().toISOString()
-      }))
+         phoneNumber,
+         ipAddress,
+         duration: callDuration,
+         timestamp: new Date().toISOString()
+       }))
 
-      const response = await fetch("http://localhost:5001/transcribe", {
+      const response = await fetch("http://localhost:5000/transcribe", {
         method: "POST",
         body: formData
       })

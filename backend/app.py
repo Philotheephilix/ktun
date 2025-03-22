@@ -5,9 +5,9 @@ import tempfile
 from flask import Flask, request, jsonify
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor, pipeline
 from urgency_analysis import get_urgency_analysis
-
+from flask_cors import CORS
 app = Flask(__name__)
-
+CORS(app)
 EMOTION_LABELS = [
     "Neutral", "Happy", "Sad", "Angry", "Fearful", "Disgusted", "Surprised"
 ]

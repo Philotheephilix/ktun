@@ -2,7 +2,7 @@ import re
 import requests
 import json
 
-OLLAMA_CHAT_URL = "http://localhost:11434/api/chat"
+OLLAMA_CHAT_URL = "http://192.168.40.225:11434/api/chat"
 
 def get_urgency_analysis(transcription,emotion):
     try:
