@@ -34,6 +34,20 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useComplaintStore } from "../../../lib/stores/complaintStore"
 
+// Define the Complaint interface based on the properties being used
+interface Complaint {
+  id: string;
+  description: string;
+  locationAddress: string;
+  createdAt: Date | string;
+  Resolved?: boolean;
+  ActionTaken?: boolean;
+  PoliceAssigned?: boolean;
+  PoliceDispatched?: boolean;
+  PoliceArrived?: boolean;
+  voicemailReceived?: boolean;
+}
+
 export default function PoliceDashboardPage() {
   const [activeTab, setActiveTab] = useState("urgent")
   const [searchQuery, setSearchQuery] = useState("")
@@ -42,12 +56,12 @@ export default function PoliceDashboardPage() {
 
   const transformedTasks = complaints.map(complaint => ({
     id: complaint.id,
-    type: complaint.complaintType,
+   
     description: complaint.description,
     location: complaint.locationAddress,
     distance: "N/A",
     severity: "medium",
-    status: "new",
+    status: "urgent",
     timestamp: complaint.createdAt instanceof Date ? complaint.createdAt.toISOString() : String(complaint.createdAt),
     complainant: {
       name: "Anonymous",
@@ -57,16 +71,14 @@ export default function PoliceDashboardPage() {
 
   const filteredTasks = transformedTasks.filter((task) => {
     if (activeTab === "urgent" && task.status !== "urgent") return false
-    if (activeTab === "new" && task.status !== "new") return false
     if (activeTab === "in_progress" && task.status !== "in_progress") return false
-    if (activeTab === "pending" && task.status !== "pending") return false
     if (activeTab === "resolved" && task.status !== "resolved") return false
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       return (
         task.id.toLowerCase().includes(query) ||
-        task.type.toLowerCase().includes(query) ||
+       
         task.description.toLowerCase().includes(query) ||
         task.location.toLowerCase().includes(query)
       )
@@ -81,6 +93,17 @@ export default function PoliceDashboardPage() {
     inProgress: transformedTasks.filter((t) => t.status === "in_progress").length,
     resolved: transformedTasks.filter((t) => t.status === "resolved").length,
   }
+  const getTaskStatus = (complaint: Complaint) => {
+    if (complaint.Resolved) return 'resolved';
+    if (complaint.ActionTaken) return 'pending';
+    if (complaint.PoliceAssigned || complaint.PoliceDispatched || complaint.PoliceArrived) return 'in_progress';
+    
+    // Urgent = New + (Voicemail OR <1 hour old)
+    const isNewUrgent = complaint.voicemailReceived || 
+      (Date.now() - new Date(complaint.createdAt).getTime() < 3600000);
+    
+    return isNewUrgent ? 'urgent' : 'new';
+  };
 
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
@@ -115,12 +138,7 @@ export default function PoliceDashboardPage() {
             Urgent
           </Badge>
         )
-      case "new":
-        return (
-          <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">
-            New
-          </Badge>
-        )
+     
       case "in_progress":
         return (
           <Badge variant="outline" className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-500">
@@ -195,20 +213,11 @@ export default function PoliceDashboardPage() {
             <h1 className="text-3xl font-bold tracking-tight">Officer Dashboard</h1>
             <p className="text-muted-foreground">Welcome back, Officer John Smith</p>
           </div>
-          <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-4">
-            <Button className="gap-2">
-              <MapPin className="h-4 w-4" />
-              View Map
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Clock className="h-4 w-4" />
-              Shift: 08:00 - 16:00
-            </Button>
-          </div>
+         
         </div>
 
         <div className="grid gap-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="bg-red-50 dark:bg-red-950/20">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Urgent Tasks</CardTitle>
@@ -217,17 +226,6 @@ export default function PoliceDashboardPage() {
                 <div className="flex items-center">
                   <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
                   <div className="text-2xl font-bold">{taskStats.urgent}</div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">New Tasks</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <FileText className="h-5 w-5 text-blue-500 mr-2" />
-                  <div className="text-2xl font-bold">{taskStats.new}</div>
                 </div>
               </CardContent>
             </Card>
@@ -277,22 +275,7 @@ export default function PoliceDashboardPage() {
                   <CardTitle>Task Management</CardTitle>
                   <CardDescription>View and manage all assigned tasks</CardDescription>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant={viewMode === "list" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewMode("list")}
-                  >
-                    List
-                  </Button>
-                  <Button
-                    variant={viewMode === "map" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewMode("map")}
-                  >
-                    Map
-                  </Button>
-                </div>
+                
               </div>
             </CardHeader>
             <CardContent>
@@ -313,7 +296,7 @@ export default function PoliceDashboardPage() {
                 </Button>
               </div>
 
-              {viewMode === "list" ? (
+             
                 <Tabs defaultValue="urgent" onValueChange={setActiveTab}>
                   <TabsList className="mb-4">
                     <TabsTrigger value="urgent" className="relative">
@@ -324,9 +307,7 @@ export default function PoliceDashboardPage() {
                         </span>
                       )}
                     </TabsTrigger>
-                    <TabsTrigger value="new">New</TabsTrigger>
                     <TabsTrigger value="in_progress">In Progress</TabsTrigger>
-                    <TabsTrigger value="pending">Pending</TabsTrigger>
                     <TabsTrigger value="resolved">Resolved</TabsTrigger>
                   </TabsList>
 
@@ -347,7 +328,7 @@ export default function PoliceDashboardPage() {
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold">{task.type}</h3>
+                                  
                                     {getStatusBadge(task.status)}
                                     {getSeverityBadge(task.severity)}
                                   </div>
@@ -376,15 +357,7 @@ export default function PoliceDashboardPage() {
                     )}
                   </div>
                 </Tabs>
-              ) : (
-                <div className="aspect-video bg-muted rounded-md flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Map View</p>
-                    <p className="text-xs text-muted-foreground">Tasks will be displayed on the map</p>
-                  </div>
-                </div>
-              )}
+             
             </CardContent>
           </Card>
         </div>

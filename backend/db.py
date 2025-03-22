@@ -2,9 +2,11 @@ from tinydb import TinyDB, Query
 
 db = TinyDB('db.json')
 query_db = Query()
+
 def store_in_db(json):
     try:
         db.insert(json)
+        print(db.all())
         return True
     except:
         return False
