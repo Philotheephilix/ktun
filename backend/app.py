@@ -6,6 +6,9 @@ from flask import Flask, request, jsonify
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor, pipeline
 from urgency_analysis import get_urgency_analysis
 from flask_cors import CORS
+from pinata_store import upload_to_pinata
+import db
+
 app = Flask(__name__)
 CORS(app)
 EMOTION_LABELS = [
@@ -72,7 +75,7 @@ def transcribe_audio():
     if file.filename == '':
         return jsonify({"error": "No file selected"}), 400
 
-    allowed_extensions = {'wav', 'mp3', 'm4a'}
+    allowed_extensions = {'wav'}
     if '.' not in file.filename or file.filename.split('.')[-1].lower() not in allowed_extensions:
         return jsonify({"error": "Invalid file format. Supported formats: WAV, MP3, M4A"}), 400
 
@@ -92,9 +95,12 @@ def transcribe_audio():
         urgency_analysis = get_urgency_analysis(transcription, emotion_response)
         urgency_analysis["emotion"] = emotion_response
         urgency_analysis["transcription"] = transcription
+
+        ipfs_hash = upload_to_pinata(str(urgency_analysis))
+        db.store_in_db({'ipfs_hash': ipfs_hash})
         return jsonify({
             "status": "success",
-            "audio_data": urgency_analysis
+            "audio_data": ipfs_hash
         })
 
     except Exception as e:
@@ -103,6 +109,12 @@ def transcribe_audio():
             "status": "error",
             "message": f"Error processing file: {str(e)}"
         }), 500
+
+
+@app.route('/getbuffer', methods=['GET'])
+def get_buffer():
+    return jsonify({'data':db.fetch_all()})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
