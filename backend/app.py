@@ -4,6 +4,7 @@ import librosa
 import tempfile
 from flask import Flask, request, jsonify
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor, pipeline
+from urgency_analysis import get_urgency_analysis
 
 app = Flask(__name__)
 
@@ -14,7 +15,7 @@ EMOTION_LABELS = [
 MODEL_NAME = "superb/wav2vec2-base-superb-er"
 LOCAL_MODEL_DIR = "."
 LOCAL_FEATURE_EXTRACTOR_DIR = "."
-# Load the Whisper ASR pipeline once at startup
+
 pipe = pipeline("automatic-speech-recognition", model="openai/whisper-base")
 
 def load_model():
@@ -88,13 +89,12 @@ def transcribe_audio():
         print("Emotion detected:", emotion_response)
 
         os.unlink(tmp_path)
-
+        urgency_analysis = get_urgency_analysis(transcription, emotion_response)
+        urgency_analysis["emotion"] = emotion_response
+        urgency_analysis["transcription"] = transcription
         return jsonify({
             "status": "success",
-            "audio_data": {
-                "transcription": transcription,
-                "emotion": emotion_response
-            }
+            "audio_data": urgency_analysis
         })
 
     except Exception as e:
