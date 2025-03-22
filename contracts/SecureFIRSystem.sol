@@ -18,6 +18,7 @@ contract SecureFIRSystem {
         address assignedOfficer;
         bool isResolved;
         string[] updates;
+        string[] evidenceCids;
         address[] authorizedParties;
     }
 
@@ -29,6 +30,7 @@ contract SecureFIRSystem {
     event FIRAssigned(uint256 indexed id, address indexed officer);
     event FIRResolved(uint256 indexed id);
     event FIRUpdated(uint256 indexed id, string update);
+    event EvidenceAdded(uint256 indexed firId, string cid);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not owner");
@@ -65,7 +67,8 @@ contract SecureFIRSystem {
         uint256 _incidentDate,
         string memory _incidentLocation,
         string memory _category,
-        bool _includeComplainantAccess
+        bool _includeComplainantAccess,
+        string[] memory _evidenceCids
     ) external {
         FIR storage newFIR = firs[nextFIRId];
         newFIR.id = nextFIRId;
@@ -79,6 +82,7 @@ contract SecureFIRSystem {
         newFIR.status = "Registered";
         newFIR.complainantAddress = msg.sender;
         newFIR.isResolved = false;
+        newFIR.evidenceCids = _evidenceCids;
         
         newFIR.authorizedParties.push(owner);
         if (_includeComplainantAccess) {
@@ -102,6 +106,14 @@ contract SecureFIRSystem {
         require(!fir.isResolved, "FIR is resolved");
         fir.updates.push(update);
         emit FIRUpdated(firId, update);
+    }
+
+    function addEvidence(uint256 firId, string memory cid) external onlyAuthorized(firId) {
+        require(bytes(cid).length > 0, "Invalid CID");
+        FIR storage fir = firs[firId];
+        require(!fir.isResolved, "FIR is resolved");
+        fir.evidenceCids.push(cid);
+        emit EvidenceAdded(firId, cid);
     }
 
     function resolveFIR(uint256 firId) external onlyAuthorized(firId) {
@@ -132,7 +144,8 @@ contract SecureFIRSystem {
         string memory complainantName,
         string memory complainantContact,
         string memory incidentLocation,
-        string memory category
+        string memory category,
+        string[] memory evidenceCids
     ) {
         FIR storage fir = firs[firId];
         return (
@@ -140,7 +153,8 @@ contract SecureFIRSystem {
             fir.complainantName,
             fir.complainantContact,
             fir.incidentLocation,
-            fir.category
+            fir.category,
+            fir.evidenceCids
         );
     }
 
