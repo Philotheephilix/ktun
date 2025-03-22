@@ -75,21 +75,18 @@ export default function NewComplaintPage() {
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container flex h-16 items-center px-4 md:px-6">
-          <div className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">PoliceConnect</span>
-          </div>
-          <Button variant="ghost" size="icon" asChild className="ml-4">
-            <Link href="/">
+        <Link href="/">
               <ArrowLeft className="h-5 w-5" />
               <span className="sr-only">Back</span>
             </Link>
-          </Button>
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
+          <div className="flex items-center gap-2 ml-4">
+            <Shield className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold">KTUN</span>
           </div>
+          <Button variant="ghost" size="icon" asChild className="ml-4">
+            
+          </Button>
+          
         </div>
       </header>
 

@@ -7,13 +7,12 @@ export function ContactSection() {
         <div className="max-w-3xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center gap-8">
             <div className="flex-1">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#191A23] mb-4">Let's make things happen</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#191A23] mb-4">Get in Touch with Us</h2>
               <p className="text-[#191A23]/80 mb-6">
-                Contact us today to learn more about how our digital marketing services can help your business grow and
-                succeed.
+                Reach out to learn more about our decentralized complaint system or get assistance with filing and tracking your complaints securely.
               </p>
               <Button className="bg-[#191A23] text-white hover:bg-[#B9FF66] hover:text-[#191A23] transition-colors">
-                Get your free proposal
+                Contact Support
               </Button>
             </div>
             <div className="flex-1 flex justify-center">
@@ -30,4 +29,3 @@ export function ContactSection() {
     </section>
   )
 }
-

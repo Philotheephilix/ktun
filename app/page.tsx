@@ -13,12 +13,8 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <main>
-        <Hero />
-        <ClientLogos />
-        <Services />
-        <CaseStudies />
-        <TeamSection />
-        <Testimonials />
+        <Hero /> 
+        <Services/>
         <ContactSection />
       </main>
       <Footer />

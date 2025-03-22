@@ -77,9 +77,7 @@ export default function TrackComplaintPage() {
               Back to Home
             </Link>
           </Button>
-          <Button variant="link" size="sm" asChild>
-            <Link href="/login">Login to your account</Link>
-          </Button>
+          
         </CardFooter>
       </Card>
     </div>
