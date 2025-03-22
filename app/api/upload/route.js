@@ -1,21 +1,26 @@
-import { Agent } from '@fileverse/agents';
 import { NextResponse } from 'next/server';
+import { PinataSDK } from "pinata-web3";
 
-const agent = new Agent({
-    chain: "sepolia", 
-    pinataJWT: process.env.PINATA_JWT, 
-    pinataGateway: process.env.PINATA_GATEWAY, 
-    pimlicoAPIKey: process.env.PIMLICO_API_KEY,
+const pinata = new PinataSDK({
+    pinataJwt: process.env.PINATA_JWT,
+    pinataGateway: process.env.PINATA_GATEWAY
 });
 
 export async function POST(request) {
     try {
         const data = await request.json();
-        await agent.setupStorage('my-namespace');
-        const file = await agent.create(JSON.stringify(data));
+        
+        const file = new File(
+            [JSON.stringify(data)],
+            "data.json",
+            { type: "application/json" }
+        );
+        
+        const upload = await pinata.upload.file(file);
+        
         return NextResponse.json({ 
             success: true, 
-            fileId: file.fileId 
+            ipfsHash: upload.IpfsHash 
         });
 
     } catch (error) {
