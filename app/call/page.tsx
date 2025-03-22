@@ -79,7 +79,7 @@ export default function DialerApp() {
       const formData = new FormData()
       formData.append("file", audioBlob, `recording-${Date.now()}.wav`)
       formData.append("metadata", JSON.stringify({
-         phoneNumber:process.env.PHONE_NUMBER,
+         phoneNumber: process.env.PHONE_NUMBER,
          ipAddress,
          duration: callDuration,
          timestamp: new Date().toISOString()

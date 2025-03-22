@@ -130,6 +130,15 @@ def get_latest_complaint():
         return jsonify({"error": "Phone number is required"}), 400
     return jsonify({'data': db.fetch_from_phone(phone_number)})
 
+@app.route('/insert', methods=['POST'])
+def insert():
+    data = request.get_json()
+    print(data)
+    db.store_in_db(data)
+    return jsonify({'status': data.trackingId})
+@app.route('/getComplaints', methods=['GET'])
+def get():
+    return jsonify({'data': db.fetch_all()})
 
 if __name__ == "__main__":
     app.run(debug=True)

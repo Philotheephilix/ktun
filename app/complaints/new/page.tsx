@@ -17,11 +17,13 @@ import { useComplaintStore } from '../../../lib/stores/complaintStore'
 
 export default function NewComplaintPage() {
   const router = useRouter()
+  const [id, setId] = useState("")
   const [step, setStep] = useState(1)
   const [complaintType, setComplaintType] = useState("")
   const [description, setDescription] = useState("")
   const [locationAddress, setLocationAddress] = useState("")
   const [contactEmail, setContactEmail] = useState("")
+  const [contactName, setContactName] = useState("")
   const [contactMethod, setContactMethod] = useState("phone")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -39,34 +41,98 @@ const [evidenceDescription, setEvidenceDescription] = useState('');
     setStep(step - 1)
     window.scrollTo(0, 0)
   }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    // Create complaint object
-    const newComplaint = {
-      complaintType,
-      description,
-      locationAddress,
-      contactEmail,
-      evidenceFiles
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+  
+    try {
+      // 1. Upload evidence files to IPFS
+      const evidenceCids = await Promise.all(
+        evidenceFiles.map(async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const response = await fetch('/api/uploadany', {
+            method: 'POST',
+            body: formData,
+          });
+  
+          if (!response.ok) throw new Error('File upload failed');
+          
+          const data = await response.json();
+          return data.ipfsHash;
+        })
+      );
+  
+      // 2. Create complete complaint object
+      const trackingId = `COMP-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      const complaintData = {
+        trackingId,
+        description,
+        locationAddress,
+        evidenceFiles: evidenceCids,
+        evidenceDescription,
+        contactName: contactName || 'NIL',
+        contactEmail: contactEmail || 'NIL',
+        createdAt: new Date().toISOString(),
+        voicemailReceived: false,
+        AIProcessingCompleted: false,
+        PoliceAssigned: false,
+        PoliceDispatched: false,
+        PoliceArrived: false,
+        ActionTaken: false,
+        Resolved: false
+      };
+  
+      // 3. Upload complete data to IPFS
+      const jsonBlob = new Blob([JSON.stringify(complaintData)], { type: 'application/json' });
+      const jsonFile = new File([jsonBlob], 'complaint.json');
+      
+      const finalFormData = new FormData();
+      finalFormData.append('file', jsonFile);
+      
+      const ipfsResponse = await fetch('/api/uploadany', {
+        method: 'POST',
+        body: finalFormData,
+      });
+  
+      if (!ipfsResponse.ok) throw new Error('Data upload failed');
+      
+      const { ipfsHash } = await ipfsResponse.json();
+      console.log('IPFS Hash:', ipfsHash);
+      // 4. Send to insert endpoint
+      const insertResponse = await fetch('http://localhost:5000/insert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ipfsHash: ipfsHash,
+          trackingId
+        }),
+      });
+      
+      if (!insertResponse.ok) throw new Error('Database insertion failed');
+      
+      // Get the response data with tracking ID
+      setId(trackingId);
+  
+      if (!insertResponse.ok) throw new Error('Database insertion failed');
+  
+     
+      
+  
+      // 6. Move to confirmation
+      setStep(6);
+      router.prefetch('/');
+  
+    } catch (error) {
+      console.error('Submission error:', error);
+      // Handle error state here
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // Add to store
-    addComplaint(newComplaint)
-
-    // Print the global complaints array for debugging
-    console.log('Current complaints:', complaints)
-
-    // After a short delay to simulate processing, move to the confirmation step
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setStep(6)
-      router.prefetch('/') // Pre-fetch the home page for smoother navigation
-    }, 1500)
-   
-  }
+  };
 
   const renderStepIndicator = () => {
     return (
@@ -357,7 +423,7 @@ const [evidenceDescription, setEvidenceDescription] = useState('');
 
                 <CardTitle>Complaint Submitted Successfully!</CardTitle>
                 <CardDescription>
-                  Your complaint has been registered with ID: {complaints.length > 0 ? `#${complaints[complaints.length - 1].id || complaints.length}` : "#1"}
+                  Your complaint has been registered with ID: {id}
                 </CardDescription>
                 </CardHeader>
               <CardContent className="text-center">
