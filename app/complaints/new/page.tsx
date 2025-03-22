@@ -1,11 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Shield, ArrowLeft, MapPin, Camera, Mic, Upload, ChevronRight, CheckCircle } from "lucide-react"
+import { Shield, ArrowLeft, MapPin, Camera, Mic, Upload, ChevronRight, CheckCircle, X, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -18,36 +17,18 @@ import { useComplaintStore } from '../../../lib/stores/complaintStore'
 
 export default function NewComplaintPage() {
   const router = useRouter()
-  const {
-    step,
-    complaintType,
-    description,
-    locationAddress,
-    locationNotes,
-    contactFirstName,
-    contactLastName,
-    contactPhone,
-    contactEmail,
-    contactMethod,
-    termsAccepted,
-    isSubmitting,
-    trackingId,
-    setStep,
-    setComplaintType,
-    setDescription,
-    setLocationAddress,
-    setLocationNotes,
-    setContactFirstName,
-    setContactLastName,
-    setContactPhone,
-    setContactEmail,
-    setContactMethod,
-    setTermsAccepted,
-    setIsSubmitting,
-    setTrackingId,
-    reset,
-  } = useComplaintStore()
-
+  const [step, setStep] = useState(1)
+  const [complaintType, setComplaintType] = useState("")
+  const [description, setDescription] = useState("")
+  const [locationAddress, setLocationAddress] = useState("")
+  const [contactEmail, setContactEmail] = useState("")
+  const [contactMethod, setContactMethod] = useState("phone")
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { complaints } = useComplaintStore()
+  const { addComplaint } = useComplaintStore()
+  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
+const [evidenceDescription, setEvidenceDescription] = useState('');
 
   const handleNext = () => {
     setStep(step + 1)
@@ -63,11 +44,28 @@ export default function NewComplaintPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
+    // Create complaint object
+    const newComplaint = {
+      complaintType,
+      description,
+      locationAddress,
+      contactEmail,
+      evidenceFiles
+    }
+
+    // Add to store
+    addComplaint(newComplaint)
+
+    // Print the global complaints array for debugging
+    console.log('Current complaints:', complaints)
+
+    // After a short delay to simulate processing, move to the confirmation step
     setTimeout(() => {
       setIsSubmitting(false)
-      setStep(6) // Go to confirmation step
-    }, 2000)
+      setStep(6)
+      router.prefetch('/') // Pre-fetch the home page for smoother navigation
+    }, 1500)
+   
   }
 
   const renderStepIndicator = () => {
@@ -99,18 +97,14 @@ export default function NewComplaintPage() {
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container flex h-16 items-center px-4 md:px-6">
-        <Link href="/">
-              <ArrowLeft className="h-5 w-5" />
-              <span className="sr-only">Back</span>
-            </Link>
+          <Link href="/">
+            <ArrowLeft className="h-5 w-5" />
+            <span className="sr-only">Back</span>
+          </Link>
           <div className="flex items-center gap-2 ml-4">
             <Shield className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">KTUN</span>
           </div>
-          <Button variant="ghost" size="icon" asChild className="ml-4">
-            
-          </Button>
-          
         </div>
       </header>
 
@@ -123,6 +117,7 @@ export default function NewComplaintPage() {
 
           {step < 6 && renderStepIndicator()}
 
+          {/* Step 1 - Complaint Type */}
           {step === 1 && (
             <Card>
               <CardHeader>
@@ -131,7 +126,6 @@ export default function NewComplaintPage() {
               </CardHeader>
               <CardContent>
                 <ComplaintTypeSelector selectedType={complaintType} onSelect={setComplaintType} />
-
                 <div className="mt-6 space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="description">Brief Description</Label>
@@ -157,6 +151,7 @@ export default function NewComplaintPage() {
             </Card>
           )}
 
+          {/* Step 2 - Location */}
           {step === 2 && (
             <Card>
               <CardHeader>
@@ -164,42 +159,14 @@ export default function NewComplaintPage() {
                 <CardDescription>Provide the location where the incident occurred</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="aspect-video bg-muted rounded-md flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Map View</p>
-                    <p className="text-xs text-muted-foreground">Click to select location</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <Button variant="outline" className="flex-1 gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Use Current Location
-                  </Button>
-                  <Button variant="outline" className="flex-1 gap-2">
-                    <Upload className="h-4 w-4" />
-                    Upload Location
-                  </Button>
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="address">Address</Label>
                   <Input
                     id="address"
                     placeholder="Enter the address"
                     value={locationAddress}
-    onChange={(e) => setLocationAddress(e.target.value)}
+                    onChange={(e) => setLocationAddress(e.target.value)}
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="location-notes">Additional Location Notes</Label>
-                  <Textarea
-    value={locationNotes}
-    onChange={(e) => setLocationNotes(e.target.value)}
-  />
-
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
@@ -214,59 +181,74 @@ export default function NewComplaintPage() {
             </Card>
           )}
 
+          {/* Step 3 - Evidence */}
           {step === 3 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Step 3: Evidence Submission</CardTitle>
-                <CardDescription>Upload photos, videos, or audio recordings related to your complaint</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" className="h-auto py-6 flex flex-col gap-2">
-                    <Camera className="h-8 w-8 mb-1" />
-                    <span>Take Photo/Video</span>
-                  </Button>
-                  <Button variant="outline" className="h-auto py-6 flex flex-col gap-2">
-                    <Upload className="h-8 w-8 mb-1" />
-                    <span>Upload from Gallery</span>
-                  </Button>
-                  <Button variant="outline" className="h-auto py-6 flex flex-col gap-2">
-                    <Mic className="h-8 w-8 mb-1" />
-                    <span>Record Audio</span>
-                  </Button>
-                  <div className="border rounded-md p-4 flex flex-col items-center justify-center text-center">
-                    <p className="text-sm text-muted-foreground">
-                      No evidence? You can still submit your complaint without evidence.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border rounded-md p-4">
-                  <p className="text-sm text-center text-muted-foreground mb-4">No files uploaded yet</p>
-                  <div className="flex justify-center">
-                    <Button variant="outline" size="sm">
-                      Upload Files
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="evidence-description">Evidence Description</Label>
-                  <Textarea id="evidence-description" placeholder="Describe the evidence you are submitting" rows={3} />
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" onClick={handleBack}>
-                  Back
+  <Card>
+    <CardHeader>
+      <CardTitle>Step 3: Evidence Submission</CardTitle>
+      <CardDescription>Upload photos, videos, or audio recordings related to your complaint</CardDescription>
+    </CardHeader>
+    <CardContent className="space-y-6">
+      {/* File Upload Section */}
+      <div className="border rounded-md p-4">
+        <input
+          type="file"
+          multiple
+          onChange={(e) => setEvidenceFiles(Array.from(e.target.files || []))}
+          className="hidden"
+          id="file-upload"
+        />
+        <Label htmlFor="file-upload" className="cursor-pointer">
+          <div className="text-center">
+            <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Click to upload files</p>
+          </div>
+        </Label>
+        
+        {/* Display Uploaded Files */}
+        {evidenceFiles.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <p className="text-sm font-medium">Uploaded Files:</p>
+            {evidenceFiles.map((file, index) => (
+              <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                <span className="text-sm truncate">{file.name}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEvidenceFiles(evidenceFiles.filter((_, i) => i !== index))}
+                >
+                  <X className="h-4 w-4 text-destructive" />
                 </Button>
-                <Button onClick={handleNext}>
-                  Next
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
+      {/* Evidence Description Input */}
+      <div className="space-y-2">
+        <Label htmlFor="evidence-description">Evidence Description</Label>
+        <textarea
+          id="evidence-description"
+          value={evidenceDescription}
+          onChange={(e) => setEvidenceDescription(e.target.value)}
+          className="w-full p-2 border rounded-md min-h-[100px]"
+          placeholder="Add any additional information about the evidence..."
+        />
+      </div>
+    </CardContent>
+    <CardFooter className="flex justify-between">
+      <Button variant="outline" onClick={handleBack}>
+        Back
+      </Button>
+      <Button onClick={handleNext}>
+        Next
+        <ChevronRight className="ml-2 h-4 w-4" />
+      </Button>
+    </CardFooter>
+  </Card>
+)}
+          {/* Step 4 - Contact */}
           {step === 4 && (
             <Card>
               <CardHeader>
@@ -274,47 +256,15 @@ export default function NewComplaintPage() {
                 <CardDescription>Provide your contact details so we can update you on your complaint</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="first-name">First Name</Label>
-                    <Input id="first-name" placeholder="John" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last-name">Last Name</Label>
-                    <Input id="last-name" placeholder="Doe" />
-                  </div>
-                </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address (Optional)</Label>
-                  <Input id="email" type="email" placeholder="john.doe@example.com" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Preferred Contact Method</Label>
-                  <RadioGroup
-                    value={contactMethod}
-                    onValueChange={setContactMethod}
-                    className="flex flex-col space-y-1"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="phone" id="contact-phone" />
-                      <Label htmlFor="contact-phone">Phone Call</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="sms" id="contact-sms" />
-                      <Label htmlFor="contact-sms">SMS</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="email" id="contact-email" />
-                      <Label htmlFor="contact-email">Email</Label>
-                    </div>
-                  </RadioGroup>
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="john.doe@example.com"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                  />
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
@@ -329,117 +279,94 @@ export default function NewComplaintPage() {
             </Card>
           )}
 
+          {/* Step 5 - Review */}
           {step === 5 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Step 5: Review & Submit</CardTitle>
-                <CardDescription>Please review your complaint details before submitting</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="border rounded-md p-4">
-                    <h3 className="font-medium mb-2">Complaint Type</h3>
-                    <p>{complaintType || "Noise Complaint"}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {description || "Loud music playing after hours from neighboring apartment"}
-                    </p>
-                  </div>
+  <Card>
+    <CardHeader>
+      <CardTitle>Step 5: Review & Submit</CardTitle>
+      <CardDescription>Please review your complaint details before submitting</CardDescription>
+    </CardHeader>
+    <CardContent className="space-y-6">
+      <div className="space-y-4">
+        {/* Existing sections */}
+        <div className="border rounded-md p-4">
+          <h3 className="font-medium mb-2">Complaint Type</h3>
+          <p>{complaintType}</p>
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+        </div>
 
-                  <div className="border rounded-md p-4">
-                    <h3 className="font-medium mb-2">Location</h3>
-                    <p>{locationAddress || "123 Main Street, Cityville"}</p>
-                  </div>
+        <div className="border rounded-md p-4">
+          <h3 className="font-medium mb-2">Location</h3>
+          <p>{locationAddress}</p>
+        </div>
 
-                  <div className="border rounded-md p-4">
-                    <h3 className="font-medium mb-2">Evidence</h3>
-                    <p className="text-sm text-muted-foreground">No files uploaded</p>
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <h3 className="font-medium mb-2">Contact Information</h3>
-                    <p>John Doe</p>
-                    <p>+1 (555) 000-0000</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Preferred contact method:{" "}
-                      {contactMethod === "phone" ? "Phone Call" : contactMethod === "sms" ? "SMS" : "Email"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="terms"
-                    checked={termsAccepted}
-                    onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                  />
-                  <div className="grid gap-1.5 leading-none">
-                    <Label
-                      htmlFor="terms"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        {/* New Evidence Section */}
+        <div className="border rounded-md p-4">
+          <h3 className="font-medium mb-2">Evidence</h3>
+          <div className="space-y-3">
+            {evidenceFiles.length > 0 ? (
+              <>
+                <p className="text-sm font-medium">Uploaded Files:</p>
+                <div className="space-y-2">
+                  {evidenceFiles.map((file, index) => (
+                    <div 
+                      key={index}
+                      className="flex items-center p-2 bg-muted rounded"
                     >
-                      I agree to the terms and conditions
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      By submitting this complaint, I confirm that all information provided is true and accurate to the
-                      best of my knowledge.
-                    </p>
-                  </div>
+                      <FileText className="h-4 w-4 mr-2" />
+                      <span className="text-sm truncate">{file.name}</span>
+                    </div>
+                  ))}
                 </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" onClick={handleBack}>
-                  Back
-                </Button>
-                <Button onClick={handleSubmit} disabled={!termsAccepted || isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
-                      Submitting...
-                    </>
-                  ) : (
-                    "Submit Complaint"
-                  )}
-                </Button>
-              </CardFooter>
-            </Card>
-          )}
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">No files uploaded</p>
+            )}
 
+            <div className="pt-2">
+              <p className="text-sm font-medium">Evidence Description:</p>
+              <p className="text-sm text-muted-foreground">
+                {evidenceDescription || "No additional description provided"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="border rounded-md p-4">
+          <h3 className="font-medium mb-2">Contact Information</h3>
+          <p>{contactEmail}</p>
+        </div>
+      </div>
+    </CardContent>
+    <CardFooter className="flex justify-between">
+      <Button variant="outline" onClick={handleBack}>
+        Back
+      </Button>
+      <Button onClick={handleSubmit}>
+        {isSubmitting ? "Submitting..." : "Submit Complaint"}
+      </Button>
+    </CardFooter>
+  </Card>
+)}
+
+          {/* Step 6 - Confirmation */}
           {step === 6 && (
             <Card>
-              <CardHeader className="text-center pb-2">
+                <CardHeader className="text-center pb-2">
                 <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+
                 <CardTitle>Complaint Submitted Successfully!</CardTitle>
-                <CardDescription>Your complaint has been registered with the tracking ID:</CardDescription>
-              </CardHeader>
+                <CardDescription>
+                  Your complaint has been registered with ID: {complaints.length > 0 ? `#${complaints[complaints.length - 1].id || complaints.length}` : "#1"}
+                </CardDescription>
+                </CardHeader>
               <CardContent className="text-center">
-                <div className="bg-muted p-4 rounded-md mb-6">
-                  <p className="text-2xl font-bold tracking-wider">XYZ12345</p>
-                </div>
-
-                <div className="space-y-4 text-left mb-6">
-                  <h3 className="font-medium">Next Steps:</h3>
-                  <ol className="list-decimal list-inside space-y-2 text-sm">
-                    <li>Your complaint will be processed by our AI system</li>
-                    <li>A police officer will be assigned to your case</li>
-                    <li>You will receive updates via your preferred contact method</li>
-                    <li>You can track the status of your complaint using your tracking ID</li>
-                  </ol>
-                </div>
-
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button asChild className="flex-1">
-                    <Link href={`/complaints/status/XYZ12345`}>Track Complaint</Link>
-                  </Button>
-                  <Button variant="outline" asChild className="flex-1">
-                    <Link href="/complaints/new">Register Another Complaint</Link>
+                    <Link href="/user/dashboard">Return to Home</Link>
                   </Button>
                 </div>
               </CardContent>
-              <CardFooter className="justify-center">
-                <Button variant="link" asChild>
-                  <Link href="/">Return to Home</Link>
-                </Button>
-              </CardFooter>
             </Card>
           )}
         </div>
@@ -447,4 +374,3 @@ export default function NewComplaintPage() {
     </div>
   )
 }
-

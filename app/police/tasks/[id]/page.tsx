@@ -348,17 +348,12 @@ export default function TaskDetailPage() {
               <span className="sr-only">Back</span>
             </Link>
           </Button>
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Phone className="h-4 w-4 text-red-500" />
-              Emergency
-            </Button>
-          </div>
+
         </div>
       </header>
 
       <main className="container px-4 md:px-6 py-8">
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 ">
           <div className="md:col-span-2 space-y-6">
             <Card>
               <CardHeader className="pb-3">
@@ -403,14 +398,7 @@ export default function TaskDetailPage() {
                     </div>
                   </div>
 
-                  <div className="aspect-video bg-muted rounded-md flex items-center justify-center">
-                    <div className="text-center">
-                      <MapPin className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Map View</p>
-                      <p className="text-xs text-muted-foreground">Click to open navigation</p>
-                    </div>
-                  </div>
-
+                  
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-1">AI Analysis</h3>
                     <div className="bg-primary/5 p-4 rounded-md">
@@ -435,14 +423,15 @@ export default function TaskDetailPage() {
                       <Ambulance className="h-4 w-4" />
                       Call Ambulance
                     </Button>
-                    <Button variant="outline" className="gap-2">
-                      <Shield className="h-4 w-4" />
-                      Request Backup
-                    </Button>
-                    <Button variant="outline" className="gap-2">
-                      <FileText className="h-4 w-4" />
-                      Create FIR
-                    </Button>
+                    <Button className="w-full gap-2">
+                    <FileText className="h-4 w-4" />
+                    Mark as Resolved
+                  </Button>
+                  <Button variant="outline" className="w-full gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    Escalate to FIR
+                  </Button>
+                    
                   </div>
                 </div>
               </CardFooter>
@@ -498,94 +487,6 @@ export default function TaskDetailPage() {
                       )}
                     </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Complainant Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col items-center text-center">
-                  <Avatar className="h-16 w-16 mb-2">
-                    <AvatarImage src="/placeholder.svg" alt={task.complainant.name} />
-                    <AvatarFallback>
-                      {task.complainant.name
-                        .split(" ")
-                        .map((n: string) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h3 className="font-semibold">{task.complainant.name}</h3>
-                </div>
-
-                <div className="flex flex-col gap-2 w-full">
-                  <Button variant="outline" className="gap-2 w-full">
-                    <Phone className="h-4 w-4" />
-                    {task.complainant.phone}
-                  </Button>
-                  {task.complainant.email && (
-                    <Button variant="outline" className="gap-2 w-full">
-                      <MessageSquare className="h-4 w-4" />
-                      Contact via Email
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Evidence</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  {task.evidence.map((item: any) => (
-                    <div key={item.id} className="border rounded-md p-2">
-                      <div className="aspect-square bg-muted rounded-md flex items-center justify-center mb-2">
-                        {item.type === "image" && <Camera className="h-8 w-8 text-muted-foreground" />}
-                        {item.type === "video" && (
-                          <div className="relative">
-                            <div className="h-8 w-8 rounded-full bg-muted-foreground/20 flex items-center justify-center">
-                              <div className="h-0 w-0 border-l-8 border-l-muted-foreground border-t-4 border-t-transparent border-b-4 border-b-transparent ml-1"></div>
-                            </div>
-                          </div>
-                        )}
-                        {item.type === "audio" && <Mic className="h-8 w-8 text-muted-foreground" />}
-                      </div>
-                      <p className="text-xs truncate">{item.description}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <Button variant="outline" className="w-full gap-2">
-                  <Upload className="h-4 w-4" />
-                  Add Evidence
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Button className="w-full gap-2">
-                    <FileText className="h-4 w-4" />
-                    Mark as Resolved
-                  </Button>
-                  <Button variant="outline" className="w-full gap-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    Escalate to FIR
-                  </Button>
-                  <Button variant="outline" className="w-full gap-2">
-                    <ChevronDown className="h-4 w-4" />
-                    More Actions
-                  </Button>
                 </div>
               </CardContent>
             </Card>

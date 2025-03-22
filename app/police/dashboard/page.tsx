@@ -32,144 +32,35 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-// Mock data for demonstration
-const MOCK_TASKS = [
-  {
-    id: "ABC12345",
-    type: "Noise Complaint",
-    description: "Loud music playing after hours from neighboring apartment",
-    location: "123 Main Street, Cityville",
-    distance: "0.8 km",
-    severity: "low",
-    status: "new",
-    timestamp: "2025-03-20T18:30:00Z",
-    complainant: {
-      name: "John Doe",
-      phone: "+1 (555) 123-4567",
-    },
-  },
-  {
-    id: "DEF67890",
-    type: "Theft",
-    description: "Bicycle stolen from front yard",
-    location: "456 Oak Avenue, Townsville",
-    distance: "2.3 km",
-    severity: "medium",
-    status: "in_progress",
-    timestamp: "2025-03-18T14:15:00Z",
-    complainant: {
-      name: "Jane Smith",
-      phone: "+1 (555) 987-6543",
-    },
-  },
-  {
-    id: "GHI10111",
-    type: "Suspicious Activity",
-    description: "Unknown person loitering around the neighborhood",
-    location: "789 Pine Road, Villageton",
-    distance: "5.1 km",
-    severity: "medium",
-    status: "pending",
-    timestamp: "2025-03-15T09:45:00Z",
-    complainant: {
-      name: "Robert Johnson",
-      phone: "+1 (555) 456-7890",
-    },
-  },
-  {
-    id: "JKL12131",
-    type: "Traffic Violation",
-    description: "Cars speeding in residential area",
-    location: "101 Elm Street, Hamletville",
-    distance: "3.7 km",
-    severity: "high",
-    status: "urgent",
-    timestamp: "2025-03-10T16:20:00Z",
-    complainant: {
-      name: "Sarah Williams",
-      phone: "+1 (555) 234-5678",
-    },
-  },
-  {
-    id: "MNO14151",
-    type: "Domestic Dispute",
-    description: "Loud argument heard from neighboring apartment",
-    location: "202 Maple Drive, Boroughtown",
-    distance: "1.5 km",
-    severity: "high",
-    status: "urgent",
-    timestamp: "2025-03-21T20:10:00Z",
-    complainant: {
-      name: "Michael Brown",
-      phone: "+1 (555) 345-6789",
-    },
-  },
-  {
-    id: "PQR16171",
-    type: "Vandalism",
-    description: "Graffiti on public property",
-    location: "303 Cedar Lane, Districtville",
-    distance: "4.2 km",
-    severity: "low",
-    status: "new",
-    timestamp: "2025-03-19T11:25:00Z",
-    complainant: {
-      name: "Emily Davis",
-      phone: "+1 (555) 567-8901",
-    },
-  },
-  {
-    id: "STU18191",
-    type: "Missing Person",
-    description: "Child not returned home from school",
-    location: "404 Birch Street, Countyville",
-    distance: "6.3 km",
-    severity: "high",
-    status: "resolved",
-    timestamp: "2025-03-17T15:40:00Z",
-    complainant: {
-      name: "David Wilson",
-      phone: "+1 (555) 678-9012",
-    },
-  },
-  {
-    id: "VWX20212",
-    type: "Public Intoxication",
-    description: "Intoxicated individual causing disturbance",
-    location: "505 Walnut Avenue, Regiontown",
-    distance: "2.8 km",
-    severity: "medium",
-    status: "resolved",
-    timestamp: "2025-03-16T22:05:00Z",
-    complainant: {
-      name: "Jennifer Taylor",
-      phone: "+1 (555) 789-0123",
-    },
-  },
-]
+import { useComplaintStore } from "../../../lib/stores/complaintStore"
 
 export default function PoliceDashboardPage() {
   const [activeTab, setActiveTab] = useState("urgent")
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState("list")
+  const { complaints } = useComplaintStore()
 
-  const filteredTasks = MOCK_TASKS.filter((task) => {
-    if (activeTab === "urgent" && task.status !== "urgent") {
-      return false
-    }
-    if (activeTab === "new" && task.status !== "new") {
-      return false
-    }
-    if (activeTab === "in_progress" && task.status !== "in_progress") {
-      return false
-    }
-    if (activeTab === "pending" && task.status !== "pending") {
-      return false
-    }
-    if (activeTab === "resolved" && task.status !== "resolved") {
-      return false
-    }
+  const transformedTasks = complaints.map(complaint => ({
+    id: complaint.id,
+    type: complaint.complaintType,
+    description: complaint.description,
+    location: complaint.locationAddress,
+    distance: "N/A",
+    severity: "medium",
+    status: "new",
+    timestamp: complaint.createdAt instanceof Date ? complaint.createdAt.toISOString() : String(complaint.createdAt),
+    complainant: {
+      name: "Anonymous",
+      phone: "Not provided",
+    },
+  }))
+
+  const filteredTasks = transformedTasks.filter((task) => {
+    if (activeTab === "urgent" && task.status !== "urgent") return false
+    if (activeTab === "new" && task.status !== "new") return false
+    if (activeTab === "in_progress" && task.status !== "in_progress") return false
+    if (activeTab === "pending" && task.status !== "pending") return false
+    if (activeTab === "resolved" && task.status !== "resolved") return false
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
@@ -177,13 +68,19 @@ export default function PoliceDashboardPage() {
         task.id.toLowerCase().includes(query) ||
         task.type.toLowerCase().includes(query) ||
         task.description.toLowerCase().includes(query) ||
-        task.location.toLowerCase().includes(query) ||
-        task.complainant.name.toLowerCase().includes(query)
+        task.location.toLowerCase().includes(query)
       )
     }
 
     return true
   })
+
+  const taskStats = {
+    urgent: transformedTasks.filter((t) => t.status === "urgent").length,
+    new: transformedTasks.filter((t) => t.status === "new").length,
+    inProgress: transformedTasks.filter((t) => t.status === "in_progress").length,
+    resolved: transformedTasks.filter((t) => t.status === "resolved").length,
+  }
 
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
@@ -319,7 +216,7 @@ export default function PoliceDashboardPage() {
               <CardContent>
                 <div className="flex items-center">
                   <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
-                  <div className="text-2xl font-bold">{MOCK_TASKS.filter((t) => t.status === "urgent").length}</div>
+                  <div className="text-2xl font-bold">{taskStats.urgent}</div>
                 </div>
               </CardContent>
             </Card>
@@ -330,7 +227,7 @@ export default function PoliceDashboardPage() {
               <CardContent>
                 <div className="flex items-center">
                   <FileText className="h-5 w-5 text-blue-500 mr-2" />
-                  <div className="text-2xl font-bold">{MOCK_TASKS.filter((t) => t.status === "new").length}</div>
+                  <div className="text-2xl font-bold">{taskStats.new}</div>
                 </div>
               </CardContent>
             </Card>
@@ -341,9 +238,7 @@ export default function PoliceDashboardPage() {
               <CardContent>
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 text-indigo-500 mr-2" />
-                  <div className="text-2xl font-bold">
-                    {MOCK_TASKS.filter((t) => t.status === "in_progress").length}
-                  </div>
+                  <div className="text-2xl font-bold">{taskStats.inProgress}</div>
                 </div>
               </CardContent>
             </Card>
@@ -354,7 +249,7 @@ export default function PoliceDashboardPage() {
               <CardContent>
                 <div className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  <div className="text-2xl font-bold">{MOCK_TASKS.filter((t) => t.status === "resolved").length}</div>
+                  <div className="text-2xl font-bold">{taskStats.resolved}</div>
                 </div>
               </CardContent>
             </Card>
@@ -423,9 +318,9 @@ export default function PoliceDashboardPage() {
                   <TabsList className="mb-4">
                     <TabsTrigger value="urgent" className="relative">
                       Urgent
-                      {MOCK_TASKS.filter((t) => t.status === "urgent").length > 0 && (
+                      {taskStats.urgent > 0 && (
                         <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-                          {MOCK_TASKS.filter((t) => t.status === "urgent").length}
+                          {taskStats.urgent}
                         </span>
                       )}
                     </TabsTrigger>
@@ -497,4 +392,3 @@ export default function PoliceDashboardPage() {
     </div>
   )
 }
-

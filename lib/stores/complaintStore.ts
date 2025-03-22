@@ -1,88 +1,44 @@
+// store/complaintStore.ts
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-interface ComplaintState {
-  step: number
+interface Complaint {
+  id: string
   complaintType: string
   description: string
   locationAddress: string
-  locationNotes: string
   evidenceFiles: File[]
-  evidenceDescription: string
-  contactFirstName: string
-  contactLastName: string
-  contactPhone: string
   contactEmail: string
-  contactMethod: string
-  termsAccepted: boolean
-  isSubmitting: boolean
-  trackingId?: string
-  
-  // Actions
-  setStep: (step: number) => void
-  setComplaintType: (type: string) => void
-  setDescription: (desc: string) => void
-  setLocationAddress: (address: string) => void
-  setLocationNotes: (notes: string) => void
-  setEvidenceFiles: (files: File[]) => void
-  setEvidenceDescription: (desc: string) => void
-  setContactFirstName: (name: string) => void
-  setContactLastName: (name: string) => void
-  setContactPhone: (phone: string) => void
-  setContactEmail: (email: string) => void
-  setContactMethod: (method: string) => void
-  setTermsAccepted: (accepted: boolean) => void
-  setIsSubmitting: (submitting: boolean) => void
-  setTrackingId: (id: string) => void
-  reset: () => void
+  createdAt: Date
 }
 
-export const useComplaintStore = create<ComplaintState>((set) => ({
-  step: 1,
-  complaintType: '',
-  description: '',
-  locationAddress: '',
-  locationNotes: '',
-  evidenceFiles: [],
-  evidenceDescription: '',
-  contactFirstName: '',
-  contactLastName: '',
-  contactPhone: '',
-  contactEmail: '',
-  contactMethod: 'phone',
-  termsAccepted: false,
-  isSubmitting: false,
-  trackingId: undefined,
+interface ComplaintState {
+  complaints: Complaint[]
+  addComplaint: (complaint: Omit<Complaint, 'id' | 'createdAt'>) => void
+}
 
-  setStep: (step) => set({ step }),
-  setComplaintType: (complaintType) => set({ complaintType }),
-  setDescription: (description) => set({ description }),
-  setLocationAddress: (locationAddress) => set({ locationAddress }),
-  setLocationNotes: (locationNotes) => set({ locationNotes }),
-  setEvidenceFiles: (evidenceFiles) => set({ evidenceFiles }),
-  setEvidenceDescription: (evidenceDescription) => set({ evidenceDescription }),
-  setContactFirstName: (contactFirstName) => set({ contactFirstName }),
-  setContactLastName: (contactLastName) => set({ contactLastName }),
-  setContactPhone: (contactPhone) => set({ contactPhone }),
-  setContactEmail: (contactEmail) => set({ contactEmail }),
-  setContactMethod: (contactMethod) => set({ contactMethod }),
-  setTermsAccepted: (termsAccepted) => set({ termsAccepted }),
-  setIsSubmitting: (isSubmitting) => set({ isSubmitting }),
-  setTrackingId: (trackingId) => set({ trackingId }),
-  reset: () => set({
-    step: 1,
-    complaintType: '',
-    description: '',
-    locationAddress: '',
-    locationNotes: '',
-    evidenceFiles: [],
-    evidenceDescription: '',
-    contactFirstName: '',
-    contactLastName: '',
-    contactPhone: '',
-    contactEmail: '',
-    contactMethod: 'phone',
-    termsAccepted: false,
-    isSubmitting: false,
-    trackingId: undefined,
-  }),
-}))
+export const useComplaintStore = create<ComplaintState>()(
+  persist(
+    (set) => ({
+      complaints: [],
+      addComplaint: (newComplaint) => {
+        const randomLetters = Array(5)
+          .fill(0)
+          .map(() => String.fromCharCode(65 + Math.floor(Math.random() * 26)))
+          .join('');
+        
+        const complaintWithId: Complaint = {
+          ...newComplaint,
+          id: `${randomLetters}}`,
+          createdAt: new Date(),
+        }
+        set((state) => ({
+          complaints: [...state.complaints, complaintWithId]
+        }))
+      }
+    }),
+    {
+      name: 'complaint-storage', // Unique name for localStorage
+    }
+  )
+)

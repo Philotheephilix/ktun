@@ -206,11 +206,7 @@ export default function ComplaintStatusPage() {
               <span className="sr-only">Back</span>
             </Link>
           </Button>
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
-          </div>
+          
         </div>
       </header>
 
@@ -228,23 +224,7 @@ export default function ComplaintStatusPage() {
               <CardContent>
                 <ComplaintTimeline timeline={complaint.timeline} />
               </CardContent>
-              <CardFooter className="flex flex-col items-start gap-4 pt-0">
-                <div className="w-full">
-                  <Separator className="my-4" />
-                  <div className="flex flex-col sm:flex-row gap-4 w-full">
-                    <Button className="gap-2 flex-1">
-                      <PlusCircle className="h-4 w-4" />
-                      Add Information
-                    </Button>
-                    {complaint.status === "resolved" && (
-                      <Button variant="outline" className="gap-2 flex-1">
-                        <ThumbsUp className="h-4 w-4" />
-                        Submit Feedback
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardFooter>
+             
             </Card>
 
             <Card>
@@ -271,34 +251,7 @@ export default function ComplaintStatusPage() {
           </div>
 
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Assigned Officer</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center text-center">
-                <Avatar className="h-24 w-24 mb-4">
-                  <AvatarImage src={complaint.assignedOfficer.photo} alt={complaint.assignedOfficer.name} />
-                  <AvatarFallback>
-                    {complaint.assignedOfficer.name
-                      .split(" ")
-                      .map((n: string) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <h3 className="text-lg font-semibold">{complaint.assignedOfficer.name}</h3>
-                <p className="text-sm text-muted-foreground mb-4">Badge #{complaint.assignedOfficer.badge}</p>
-                <div className="flex flex-col gap-2 w-full">
-                  <Button variant="outline" className="gap-2 w-full">
-                    <Phone className="h-4 w-4" />
-                    Call Officer
-                  </Button>
-                  <Button variant="outline" className="gap-2 w-full">
-                    <MessageSquare className="h-4 w-4" />
-                    Send Message
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            
 
             <Card>
               <CardHeader>
@@ -320,10 +273,11 @@ export default function ComplaintStatusPage() {
                 <p className="text-sm text-muted-foreground mb-4">
                   If you need immediate assistance or have questions about your complaint, please contact our helpline.
                 </p>
+                <Link href="/call">
                 <Button className="w-full gap-2">
                   <Phone className="h-4 w-4" />
                   Contact Helpline
-                </Button>
+                </Button></Link>
               </CardContent>
             </Card>
           </div>
