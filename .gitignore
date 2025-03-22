@@ -26,3 +26,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /backend/__pycache__
+user_data.json
+backend/db.json

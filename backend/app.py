@@ -1,3 +1,4 @@
+import json
 import os
 import torch
 import librosa
@@ -6,6 +7,10 @@ from flask import Flask, request, jsonify
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor, pipeline
 from urgency_analysis import get_urgency_analysis
 from flask_cors import CORS
+from pinata_store import upload_to_pinata
+import db
+from datetime import datetime
+
 app = Flask(__name__)
 CORS(app)
 EMOTION_LABELS = [
@@ -67,12 +72,15 @@ def predict_emotion(temp_path):
 def transcribe_audio():
     if 'file' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
-        
+
     file = request.files['file']
+    metadata = json.loads(request.form.get('metadata', '{}'))
+    phone_number = metadata.get('phoneNumber', '')
+    ip_address = metadata.get('ipAddress', '')
     if file.filename == '':
         return jsonify({"error": "No file selected"}), 400
 
-    allowed_extensions = {'wav', 'mp3', 'm4a'}
+    allowed_extensions = {'wav'}
     if '.' not in file.filename or file.filename.split('.')[-1].lower() not in allowed_extensions:
         return jsonify({"error": "Invalid file format. Supported formats: WAV, MP3, M4A"}), 400
 
@@ -92,9 +100,14 @@ def transcribe_audio():
         urgency_analysis = get_urgency_analysis(transcription, emotion_response)
         urgency_analysis["emotion"] = emotion_response
         urgency_analysis["transcription"] = transcription
+        urgency_analysis["phone_number"] = phone_number
+        urgency_analysis["ip_address"] = ip_address
+        urgency_analysis["timestamp"] = datetime.now().isoformat()
+        print(ip_address)
+        ipfs_hash = upload_to_pinata(str(urgency_analysis))
+        db.store_in_db({'ph':phone_number,'ipfs_hash': ipfs_hash})
         return jsonify({
-            "status": "success",
-            "audio_data": urgency_analysis
+            "status": "success"
         })
 
     except Exception as e:
@@ -103,6 +116,20 @@ def transcribe_audio():
             "status": "error",
             "message": f"Error processing file: {str(e)}"
         }), 500
+
+
+@app.route('/getbuffer', methods=['GET'])
+def get_buffer():
+    return jsonify({'data':db.fetch_all()})
+
+@app.route('/getlatestcomplaint', methods=['POST'])
+def get_latest_complaint():
+    phone_number = str(request.get_json().get('phone_number'))[2:]
+    print(phone_number)
+    if not phone_number:
+        return jsonify({"error": "Phone number is required"}), 400
+    return jsonify({'data': db.fetch_from_phone(phone_number)})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
