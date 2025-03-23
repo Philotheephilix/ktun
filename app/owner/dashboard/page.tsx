@@ -82,15 +82,20 @@ export default function OwnerDashboardPage() {
         (await SecureFIRSystem).abi,
         signer
       )
+      const contract1 = new ethers.Contract(
+        CONTRACT_ADDRESS1!,
+        (await PoliceWalletManager).abi,
+        signer
+      )
 
       const ownerAddress = await contract.owner()
       const userAddress = await signer.getAddress()
       setIsOwner(userAddress.toLowerCase() === ownerAddress.toLowerCase())
       loadFIRs(contract)
-      if (isOwner) {
-        loadPoliceOfficers(contract)
+      
+        loadPoliceOfficers(contract1)
        
-      }
+
     } catch (error) {
       console.error("Initialization error:", error)
     } finally {
@@ -139,9 +144,13 @@ export default function OwnerDashboardPage() {
       const officerAddresses = await contract.getPoliceList();
       
       // Map addresses to officer objects with status information
+      const officerObjects = officerAddresses.map((address: string) => ({
+        address: address,
+        isActive: true
+      }));
       
       console.log(officerAddresses)
-      setOfficers(officerAddresses);
+      setOfficers(officerObjects);
     } catch (error) {
       console.error("Error loading officers:", error);
       setOfficers([]);
@@ -152,6 +161,7 @@ export default function OwnerDashboardPage() {
     if (!mounted) return
 
     try {
+
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(
@@ -159,7 +169,7 @@ export default function OwnerDashboardPage() {
         PoliceWalletManager.abi,
         signer
       )
-
+loadPoliceOfficers(contract)
       if (!ethers.isAddress(newOfficerAddress)) {
         alert("Invalid Ethereum address")
         return
@@ -193,13 +203,33 @@ export default function OwnerDashboardPage() {
     )
   }
 
+  async function handleRemoveOfficer(address: string): Promise<void> {
+    if (!mounted) return
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = provider.getSigner()
+      const contract = new ethers.Contract(
+        CONTRACT_ADDRESS1!,
+        PoliceWalletManager.abi,
+        await signer
+      )
+
+      const tx = await contract.removePolice(address)
+      await tx.wait()
+      loadPoliceOfficers(contract)
+    } catch (error) {
+      console.error("Error removing officer:", error)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container flex h-16 items-center px-4 md:px-6">
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">FIR Management System</span>
+            <span className="text-xl font-bold">KTUN</span>
           </div>
           <nav className="ml-auto flex items-center gap-4 sm:gap-6">
             <Button variant="ghost" size="icon">
@@ -268,9 +298,9 @@ export default function OwnerDashboardPage() {
                         </div>
                         <div className="flex items-center gap-4">
                           <Button variant="outline" asChild>
-                            <Link href={`/owner/firs/${fir.id}`}>
+                           
                               <ArrowUpRight className="h-4 w-4" />
-                            </Link>
+                           
                           </Button>
                         </div>
                       </CardContent>
@@ -306,21 +336,19 @@ export default function OwnerDashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {officers.map(officer => (
-                    <div key={officer.address} className="flex items-center justify-between p-4 border rounded-lg">
+                  {officers.map((officer, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-2">
                         <User className="h-5 w-5 text-muted-foreground" />
                         <span className="font-mono">{officer.address}</span>
-                        {officer.isActive ? (
+                      
                           <Badge className="bg-green-100 text-green-800">Active</Badge>
-                        ) : (
-                          <Badge variant="destructive">Inactive</Badge>
-                        )}
+                       
                       </div>
                       <Button
                         variant="destructive"
                         size="sm"
-                        // onClick={() => handleRemoveOfficer(officer.address)}
+                        onClick={() => handleRemoveOfficer(officer.address)}
                         disabled={!officer.isActive}
                       >
                         <Trash className="h-4 w-4 mr-2" />
