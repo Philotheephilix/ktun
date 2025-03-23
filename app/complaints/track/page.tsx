@@ -24,11 +24,7 @@ export default function TrackComplaintPage() {
     }
 
     // In a real app, we would validate the tracking ID format
-    if (!/^[A-Z0-9]{8,}$/i.test(trackingId)) {
-      setError("Invalid tracking ID format")
-      return
-    }
-
+    
     // Navigate to the complaint status page with the tracking ID
     router.push(`/complaints/status/${trackingId}`)
   }
