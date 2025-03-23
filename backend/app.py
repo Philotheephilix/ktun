@@ -162,9 +162,17 @@ def insert():
     print(data)
     db.store_in_db(data)
     return jsonify({'status': data.trackingId})
+
 @app.route('/getComplaints', methods=['GET'])
 def get():
     return jsonify({'data': db.fetch_all()})
+
+
+
+@app.route('/getcomplaints', methods=['POST'])
+def get_all_complaints():
+    return jsonify({'data': db.fetch_all_comp()})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
