@@ -100,7 +100,7 @@ def transcribe_audio():
         urgency_analysis = get_urgency_analysis(transcription, emotion_response)
         urgency_analysis["emotion"] = emotion_response
         urgency_analysis["transcription"] = transcription
-        urgency_analysis["phone_number"] = '9342015579'
+        urgency_analysis["phone_number"] = '9342199098'
         urgency_analysis["ip_address"] = ip_address
         urgency_analysis["timestamp"] = datetime.now().isoformat()
     #     urgency_analysis.update({
@@ -170,7 +170,7 @@ def insert():
     data = request.get_json()
     print(data)
     db.store_in_db(data)
-    return jsonify({'status': data.trackingId})
+    return jsonify({'status': "success"})
 
 @app.route('/getComplaints', methods=['GET'])
 def get():

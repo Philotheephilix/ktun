@@ -429,7 +429,7 @@ const [evidenceDescription, setEvidenceDescription] = useState('');
               <CardContent className="text-center">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button asChild className="flex-1">
-                    <Link href="/user/dashboard">Return to Home</Link>
+                    <Link href="/">Return to Home</Link>
                   </Button>
                 </div>
               </CardContent>

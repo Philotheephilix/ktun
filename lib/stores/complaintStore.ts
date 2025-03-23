@@ -7,7 +7,7 @@ export interface Complaint {
   trackingId: string
   description: string
   locationAddress: string
-  evidenceFiles: string[] // IPFS CIDs
+  evidenceFiles: string[]
   evidenceDescription: string
   contactName: string
   contactEmail: string
@@ -80,12 +80,7 @@ export const useComplaintStore = create<ComplaintState>()(
         
                     const complaintData = await complaintResponse.json()
                     
-                    // Validate minimum required fields
-                    if (!complaintData.trackingId || !complaintData.description) {
-                      console.error('Invalid complaint data structure', complaintData)
-                      return null
-                    }
-        
+
                     // Process evidence files
                     const evidenceFiles = await Promise.all(
                       (complaintData.evidenceFiles || []).map(async (cid: string) => {

@@ -11,8 +11,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: "Positivus | Digital Marketing Agency",
-  description: "Navigating the digital landscape for success",
+  title: "KTUN",
+  description: "Decentralized Police Application",
     generator: 'v0.dev'
 }
 

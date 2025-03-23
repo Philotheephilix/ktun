@@ -37,6 +37,7 @@ import { ethers } from "ethers"
 import dynamic from "next/dynamic"
 
 import SecureFIRSystem from  "../../../src/contracts/SecureFIRSystem.sol/SecureFIRSystem.json"
+import PoliceWalletManager from "../../../src/contracts/PoliceWalletManager.sol/PoliceWalletManager.json"
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS2
 const CONTRACT_ADDRESS1 = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS
@@ -102,7 +103,7 @@ export default function OwnerDashboardPage() {
       const firArray: FIR[] = [];
   
       // Parallel fetching with error handling
-      const requests = Array.from({length: 2 - 1}, (_, i) => i + 1)
+      const requests = Array.from({length: 4 - 1}, (_, i) => i + 1)
         .map(async (i) => {
           try {
             const [title, status, assignedOfficer] = await contract.getFIRDetails(i);
@@ -135,19 +136,15 @@ export default function OwnerDashboardPage() {
   };
   const loadPoliceOfficers = async (contract: ethers.Contract) => {
     try {
-      const officerList = await contract.getPoliceList()
-      const officerStatuses = await Promise.all(
-        officerList.map((addr: string) => contract.policeOfficers(addr))
-      )
+      const officerAddresses = await contract.getPoliceList();
       
-      const officersData = officerList.map((addr: string, index: number) => ({
-        address: addr,
-        isActive: officerStatuses[index]
-      }))
+      // Map addresses to officer objects with status information
       
-      setOfficers(officersData)
+      console.log(officerAddresses)
+      setOfficers(officerAddresses);
     } catch (error) {
-      console.error("Error loading officers:", error)
+      console.error("Error loading officers:", error);
+      setOfficers([]);
     }
   }
 
@@ -159,7 +156,7 @@ export default function OwnerDashboardPage() {
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS1!,
-        (await SecureFIRSystem).abi,
+        PoliceWalletManager.abi,
         signer
       )
 
@@ -168,7 +165,7 @@ export default function OwnerDashboardPage() {
         return
       }
 
-      const tx = await contract.addPoliceOfficer(newOfficerAddress)
+      const tx = await contract.addPolice(newOfficerAddress)
       await tx.wait()
       setNewOfficerAddress("")
       loadPoliceOfficers(contract)
