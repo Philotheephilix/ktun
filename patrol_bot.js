@@ -76,25 +76,25 @@ bot.on("message", async (msg) => {
                        complaint = JSON.parse(sanitized);
                      } catch (err) {
                        console.error('Failed to parse complaint:', rawComplaint, err);
-                       return 'Error parsing complaint.';
+                       return '';
                      }
                  
                      return Object.entries(complaint)
                        .map(([key, value]) => `${key}: ${value}`)
                        .join('\n');
-                   }).join('\n\n---\n\n');
+                   }).join('\n\n---');
                  
                    bot.sendMessage(chatId, `Your complaints:\n\n${formattedComplaints}`);
           }
 
-          if (!complaints.length) {
-            bot.sendMessage(chatId, "You have no complaints.");
-          } else {
-            const formatted = complaints
-              .map((c, i) => `🔹 ID: ${c.id} - ${c.title || "No Title"}`)
-              .join("\n");
-            bot.sendMessage(chatId, `📄 Complaints:\n\n${formatted}`);
-          }
+          // if (!complaints.length) {
+          //   bot.sendMessage(chatId, "You have no complaints.");
+          // } else {
+          //   const formatted = complaints
+          //     .map((c, i) => `🔹 ID: ${c.id} - ${c.title || "No Title"}`)
+          //     .join("\n");
+          //   bot.sendMessage(chatId, `📄 Complaints:\n\n${formatted}`);
+          // }
         } catch (err) {
           bot.sendMessage(chatId, "⚠️ Failed to fetch complaints.");
         }
@@ -106,19 +106,72 @@ bot.on("message", async (msg) => {
 
     case "AWAITING_ID":
       try {
-        const response = await axios.get(`${process.env.SERVER_URL}/complaints/${text}`);
-        const complaint = response.data;
+        const response = await fetch('http://localhost:5000/getcomplaint', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(text)
+        });
+        const data = await response.json();
+        const complaints = Array.isArray(data) ? data : [data];
+        const complaintStatus = data.data.map(complaint => {
+          return `
+        Complaint ID: ${complaint.trackingId}
+        Status:
+        - Police Assigned: ${complaint.PoliceAssigned ? '✅' : '❌'}
+        - Police Dispatched: ${complaint.PoliceDispatched ? '✅' : '❌'}
+        - Police Arrived: ${complaint.PoliceArrived ? '✅' : '❌'}
+        - Resolved: ${complaint.Resolved ? '✅' : '❌'}
 
-        if (complaint) {
-          bot.sendMessage(
-            chatId,
-            `🔍 Complaint Details:\nID: ${complaint.id}\nTitle: ${complaint.title}\nStatus: ${complaint.status}`
-          );
-        } else {
-          bot.sendMessage(chatId, "❌ Complaint not found.");
-        }
+        Location: ${complaint.locationAddress}
+        Description: ${complaint.description}
+        Contact: ${complaint.contactName} (${complaint.contactEmail})
+        Created: ${new Date(complaint.createdAt).toLocaleString()}
+          `;
+        }).join('\n\n');
+
+        // let complaints = [];
+
+        // if (data.error) {
+        //   throw new Error(data.error);
+        // } else if (data.data) {
+        //   complaints = Array.isArray(data.data) ? data.data : [data.data];
+          
+        //    const formattedComplaints = complaints.map(rawComplaint => {
+        //            let complaint;
+               
+        //            // Parse the string to an actual object
+        //            try {
+        //              // Replace backticks or incorrect quotes if needed
+        //              const sanitized = rawComplaint
+        //                .replace(/`/g, '')               // Remove backticks
+        //                .replace(/'/g, '"');             // Replace single quotes with double quotes
+               
+        //              complaint = JSON.parse(sanitized);
+        //            } catch (err) {
+        //              console.error('Failed to parse complaint:', rawComplaint, err);
+        //              return 'Error parsing complaint.';
+        //            }
+               
+        //            return Object.entries(complaint)
+        //              .map(([key, value]) => `${key}: ${value}`)
+        //              .join('\n');
+        //          }).join('\n\n---\n\n');
+               
+        //          bot.sendMessage(chatId, `Your complaints:\n\n${formattedComplaints}`);
+        // }
+
+        // if (!complaints.length) {
+        //   bot.sendMessage(chatId, "You have no complaints.");
+        // } else {
+        //   const formatted = complaints
+        //     .map((c, i) => `🔹 ID: ${c.id} - ${c.title || "No Title"}`)
+        //     .join("\n");
+        //   bot.sendMessage(chatId, `📄 Complaints:\n\n${formatted}`);
+        // }
       } catch (err) {
-        bot.sendMessage(chatId, "⚠️ Error tracking complaint.");
+        bot.sendMessage(chatId, "⚠️ Error tracking complaint."+err);
       }
 
       // Go back to main menu

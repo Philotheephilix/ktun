@@ -131,7 +131,7 @@ def transcribe_audio():
     # #     Resolved: false
     # #   };
         ipfs_hash = upload_to_pinata(str(urgency_analysis))
-        db.store_in_db({'ph':phone_number,'ipfs_hash': ipfs_hash})
+        db.store_in_db({'ph':urgency_analysis["phone_number"],'ipfsHash': ipfs_hash})
         return jsonify({
             "status": "success"
         })
@@ -155,6 +155,15 @@ def get_latest_complaint():
     if not phone_number:
         return jsonify({"error": "Phone number is required"}), 400
     return jsonify({'data': db.fetch_from_phone(phone_number)})
+
+@app.route('/getcomplaint', methods=['POST'])
+def getcomplaint():
+    print(request)
+    json_data = request.get_json()
+    print(json_data)
+    if not json_data:
+        return jsonify({"error": "Tracking ID is required"}), 400
+    return jsonify({'data': db.fetch_from_id(json_data)})
 
 @app.route('/insert', methods=['POST'])
 def insert():

@@ -97,8 +97,9 @@ bot.on('callback_query', (query) => {
             complaint = JSON.parse(sanitized);
           } catch (err) {
             console.error('Failed to parse complaint:', rawComplaint, err);
-            return 'Error parsing complaint.';
-          }
+            return Object.entries(rawComplaint)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join('\n');          }
       
           return Object.entries(complaint)
             .map(([key, value]) => `${key}: ${value}`)
