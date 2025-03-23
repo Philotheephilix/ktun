@@ -100,12 +100,38 @@ def transcribe_audio():
         urgency_analysis = get_urgency_analysis(transcription, emotion_response)
         urgency_analysis["emotion"] = emotion_response
         urgency_analysis["transcription"] = transcription
-        urgency_analysis["phone_number"] = phone_number
+        urgency_analysis["phone_number"] = '9342015579'
         urgency_analysis["ip_address"] = ip_address
         urgency_analysis["timestamp"] = datetime.now().isoformat()
-        print(ip_address)
+    #     urgency_analysis.update({
+    #         "voicemailReceived": False,
+    #         "AIProcessingCompleted": False,
+    #         "PoliceAssigned": False,
+    #         "PoliceDispatched": False,
+    #         "PoliceArrived": False,
+    #         "ActionTaken": False,
+    #         "Resolved": False
+    #     })
+    #     print(ip_address)
+    # #     const complaintData = {
+    # #     trackingId,
+    # #     description,
+    # #     locationAddress,
+    # #     evidenceFiles: evidenceCids,
+    # #     evidenceDescription,
+    # #     contactName: contactName  'NIL',
+    # #     contactEmail: contactEmail  'NIL',
+    # #     createdAt: new Date().toISOString(),
+    # #     voicemailReceived: false,
+    # #     AIProcessingCompleted: false,
+    # #     PoliceAssigned: false,
+    # #     PoliceDispatched: false,
+    # #     PoliceArrived: false,
+    # #     ActionTaken: false,
+    # #     Resolved: false
+    # #   };
         ipfs_hash = upload_to_pinata(str(urgency_analysis))
-        db.store_in_db({'ph':phone_number,'ipfs_hash': ipfs_hash})
+        db.store_in_db({'ph':urgency_analysis["phone_number"],'ipfsHash': ipfs_hash})
         return jsonify({
             "status": "success"
         })
@@ -130,15 +156,32 @@ def get_latest_complaint():
         return jsonify({"error": "Phone number is required"}), 400
     return jsonify({'data': db.fetch_from_phone(phone_number)})
 
+@app.route('/getcomplaint', methods=['POST'])
+def getcomplaint():
+    print(request)
+    json_data = request.get_json()
+    print(json_data)
+    if not json_data:
+        return jsonify({"error": "Tracking ID is required"}), 400
+    return jsonify({'data': db.fetch_from_id(json_data)})
+
 @app.route('/insert', methods=['POST'])
 def insert():
     data = request.get_json()
     print(data)
     db.store_in_db(data)
     return jsonify({'status': data.trackingId})
+
 @app.route('/getComplaints', methods=['GET'])
 def get():
     return jsonify({'data': db.fetch_all()})
+
+
+
+@app.route('/getcomplaints', methods=['POST'])
+def get_all_complaints():
+    return jsonify({'data': db.fetch_all_comp()})
+
 
 if __name__ == "__main__":
     app.run(debug=True)

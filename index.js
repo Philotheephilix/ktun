@@ -77,18 +77,38 @@ bot.on('callback_query', (query) => {
       },
       body: JSON.stringify({ phone_number: phoneNumber })
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
       if (data.error) {
         bot.sendMessage(chatId, 'Error: ' + data.error);
       } else if (data.data) {
-        bot.sendMessage(chatId, `Your latest complaint: ${JSON.stringify(data.data)}`);
-      } else {
+        const complaints = Array.isArray(data.data) ? data.data : [data.data];
+      
+        const formattedComplaints = complaints.map(rawComplaint => {
+          let complaint;
+      
+          // Parse the string to an actual object
+          try {
+            // Replace backticks or incorrect quotes if needed
+            const sanitized = rawComplaint
+              .replace(/`/g, '')               // Remove backticks
+              .replace(/'/g, '"');             // Replace single quotes with double quotes
+      
+            complaint = JSON.parse(sanitized);
+          } catch (err) {
+            console.error('Failed to parse complaint:', rawComplaint, err);
+            return Object.entries(rawComplaint)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join('\n');          }
+      
+          return Object.entries(complaint)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join('\n');
+        }).join('\n\n---\n\n');
+      
+        bot.sendMessage(chatId, `Your complaints:\n\n${formattedComplaints}`);
+      }
+      else {
         bot.sendMessage(chatId, 'You currently have no complaints filed.');
       }
     })
