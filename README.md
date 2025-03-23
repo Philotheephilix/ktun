@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KTUN
 
-## Getting Started
+# 🚨 AI & Blockchain-Powered Police Complaint Management System
 
-First, run the development server:
+A cutting-edge emergency response and FIR filing system leveraging **AI**, **blockchain**, and **decentralized storage** to solve deep-rooted issues in complaint handling and law enforcement transparency.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🌟 Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This platform enables **citizens** to raise emergency complaints via **voice or text**, which are then analyzed by an AI engine to assign **priority levels**. Authorities are automatically dispatched, real-time tracking is initiated, and every action is recorded on the **EDUCHAIN blockchain** to prevent tampering.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Our solution restores **public trust** in emergency services and law enforcement by making the complaint process **secure, trackable, and transparent**.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🔍 Key Problems Solved
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **FIR Tampering & Delays**  
+  Immutable blockchain records make manipulation impossible and automate escalation.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Lack of Transparency**  
+  Real-time tracking of officer response and case status visible to users.
 
-## Deploy on Vercel
+- **Inefficient Complaint Handling**  
+  AI prioritizes urgent cases and routes them automatically to the right personnel.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Privacy Risks**  
+  Decentralized storage ensures data privacy with verifiable access controls.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 💡 Core Features
+
+### 🧠 1. AI-Based Voice & Text Complaint Analysis
+- Citizens can file complaints via call or text.
+- Ollama running **DeepSeek R1 8B** parses the content and urgency.
+- Assigns a **priority score** (e.g. red = critical, yellow = moderate).
+
+### 🚔 2. Officer Auto-Assignment & SLA Tracking
+- Nearest available officer is automatically notified.
+- Officers must update:
+  - 📍 Live location
+  - 🚨 Status (en route, investigating, resolved)
+- Tracks SLA (response time, handling time) compliance.
+
+### 🔗 3. Blockchain-Powered FIR Recording
+- Each case, once verified, becomes a **smart contract-backed FIR**.
+- Stored immutably on **EDUCHAIN** using Solidity smart contracts.
+- All updates are version-controlled and cryptographically signed.
+
+### 🗄️ 4. IPFS-Based Complaint & Evidence Storage
+- Complaint forms, voice logs, and attachments are uploaded to **IPFS**.
+- Access is controlled through encryption and smart contracts.
+- Protects from leaks, deletion, or unauthorized viewing.
+
+### 🔁 5. Escalation Engine for Inaction
+- AI auto-monitors every complaint.
+- If no action is taken in X minutes:
+  - Escalates to higher authority (e.g. DSP, SP)
+  - Sends reminders via Telegram/Web interface
+
+### 🤖 6. Telegram Bot Interface (for Citizens)
+- Citizens can use a **Telegram WebApp bot** to:
+  - Submit complaints with voice/text/image
+  - Track complaint status
+  - View FIR logs and assigned officer details
+
+---
+
+## 🧬 Novelty & Differentiators
+
+| Feature                            | What's Unique |
+|-----------------------------------|---------------|
+| AI + Blockchain Hybrid System     | Not just analytics or logging—our AI prioritizes, routes, and escalates complaints, while blockchain guarantees record immutability. |
+| Telegram Bot for Instant Access   | Makes decentralized tech accessible via familiar interfaces like Telegram. |
+| End-to-End Transparency           | Users track every action from submission to resolution in real time. |
+| Auto-Escalation with AI & SLA     | Escalation isn’t manual—it’s SLA-based and tracked algorithmically. |
+| ZK-Friendly Design                | Future-ready for Zero-Knowledge Proof integrations for privacy compliance. |
+
+---
+
+## 🧱 Tech Stack
+
+| Layer        | Tools / Libraries                              |
+|--------------|------------------------------------------------|
+| 🧠 AI         | Ollama + DeepSeek R1 8B                        |
+| 🌐 Frontend  | Next.js                                        |
+| 🤖 Bot       | Node.js + Telegram Bot API                     |
+| 🧾 Contracts | Solidity + Hardhat                             |
+| 🔗 Chain     | EDUCHAIN                                       |
+| 📦 Storage   | IPFS                                           |
+
+---
+
+## 📜 Smart Contract Address
+
+> **EDUCHAIN Testnet**  
+> `0xB339eae8a44256CB77DCbFe10138377cdeFaD5C9`
+> `0xa64fEE7cED2C1AcE815aA35F705968eeC27fD620`
+
+---
+
+## 🚀 How to Run
+
+1. Clone the repo  
+2. `npm install && npm run dev` (Next.js frontend)  
+3. `node index.js && node patrol_bot.js` (Telegram bot)  
+4. `npx hardhat compile && npx hardhat deploy` (Smart contract)  
+5. Run AI server using Ollama + DeepSeek model  
+
+---
+
+## ✉️ Contact
+
+Interested in partnerships, pilots, or open-source collaboration?  
+Drop us a message at [contact@email.com] or via Telegram!
+
+---
+
+> _“Justice delayed is justice denied — we make justice real-time, secure, and decentralized.”_
