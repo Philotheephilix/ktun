@@ -1,26 +1,20 @@
 import { NextResponse } from 'next/server';
-import { PinataSDK } from "pinata-web3";
-
-const pinata = new PinataSDK({
-    pinataJwt: process.env.PINATA_JWT,
-    pinataGateway: process.env.PINATA_GATEWAY
-});
+import lighthouse from "@lighthouse-web3/sdk";
 
 export async function POST(request) {
     try {
         const data = await request.json();
-        
-        const file = new File(
-            [JSON.stringify(data)],
-            "data.json",
-            { type: "application/json" }
+        const jsonString = JSON.stringify(data, null, 2);
+
+        const uploadResponse = await lighthouse.uploadText(
+            jsonString,
+            process.env.LIGHTHOUSE_API_KEY,
+            "data.json"
         );
-        
-        const upload = await pinata.upload.file(file);
-        
+
         return NextResponse.json({ 
             success: true, 
-            ipfsHash: upload.IpfsHash 
+            ipfsHash: uploadResponse.data.Hash 
         });
 
     } catch (error) {
@@ -29,8 +23,4 @@ export async function POST(request) {
             { status: 500 }
         );
     }
-}
-
-export async function GET() {
-    return NextResponse.json({ status: 'API is running' });
 }

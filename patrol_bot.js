@@ -15,6 +15,7 @@ bot.onText(/\/start/, (msg) => {
 
   bot.sendMessage(chatId, "Welcome! Please enter your wallet address:");
 });
+bot.on("polling_error", (msg) => console.log(msg));
 
 // Handle all messages
 bot.on("message", async (msg) => {
