@@ -8,7 +8,7 @@ A cutting-edge emergency response and FIR filing system leveraging **AI**, **blo
 
 ## 🌟 Overview
 
-This platform enables **citizens** to raise emergency complaints via **voice or text**, which are then analyzed by an AI engine to assign **priority levels**. Authorities are automatically dispatched, real-time tracking is initiated, and every action is recorded on the **EDUCHAIN blockchain** to prevent tampering.
+This platform enables **citizens** to raise emergency complaints via **voice or text**, which are then analyzed by an AI engine to assign **priority levels**. Authorities are automatically dispatched, real-time tracking is initiated, and every action is recorded on the **Filecoin network** to prevent tampering.
 
 Our solution restores **public trust** in emergency services and law enforcement by making the complaint process **secure, trackable, and transparent**.
 
@@ -30,6 +30,34 @@ Our solution restores **public trust** in emergency services and law enforcement
 
 ---
 
+## 📦 Sponsor Technology Usage
+
+### 🗂️ Filecoin/IPFS (Primary Sponsor)
+- All complaints, voice logs, and evidence files are encrypted and stored on **IPFS**, ensuring tamper-proof, decentralized, and immutable records.
+- **Filecoin** is used for long-term, redundant storage of all complaint data, preserving data provenance and accessibility.
+- Metadata such as timestamps, user consent, and complaint lifecycle are linked to each file CID for full transparency and auditability.
+
+### 🧠 Ollama + DeepSeek R1 8B (AI Model Hosting)
+- We use Ollama to host and run the **DeepSeek R1 8B** model for local LLM-powered classification of complaint urgency and content analysis.
+- The AI autonomously parses voice and text to assign priority levels (e.g., Red, Yellow) and routes them accordingly.
+
+### 🤖 Telegram Bot API
+- Citizens can file complaints through a **Telegram WebApp Bot**, which interfaces directly with our backend AI and IPFS systems.
+- The bot also provides real-time updates on complaint status, officer assignments, and FIR logs.
+
+### ⛓️ Solidity + Hardhat
+- Smart contracts are written in **Solidity** and deployed via **Hardhat** to manage the FIR lifecycle and complaint updates on-chain.
+- Contracts ensure cryptographic signature logging, complaint version control, and decentralized access control.
+
+### 🌐 Next.js
+- Used to build the front-end citizen dashboard for complaint tracking, FIR browsing, and legal resource access.
+- Ensures performance, scalability, and a clean UI that makes Web3 tech accessible to non-technical users.
+
+### 🔐 ZK-Ready Modular Architecture
+- While not fully implemented in this version, our architecture is designed to support **Zero-Knowledge Proofs** for future anonymous complaint submissions.
+- Components are modular and can be independently upgraded or replaced as privacy tooling improves.
+
+
 ## 💡 Core Features
 
 ### 🧠 1. AI-Based Voice & Text Complaint Analysis
@@ -46,7 +74,7 @@ Our solution restores **public trust** in emergency services and law enforcement
 
 ### 🔗 3. Blockchain-Powered FIR Recording
 - Each case, once verified, becomes a **smart contract-backed FIR**.
-- Stored immutably on **EDUCHAIN** using Solidity smart contracts.
+- Stored immutably on the **Filecoin network** using Solidity smart contracts.
 - All updates are version-controlled and cryptographically signed.
 
 ### 🗄️ 4. IPFS-Based Complaint & Evidence Storage
@@ -75,7 +103,7 @@ Our solution restores **public trust** in emergency services and law enforcement
 | AI + Blockchain Hybrid System     | Not just analytics or logging—our AI prioritizes, routes, and escalates complaints, while blockchain guarantees record immutability. |
 | Telegram Bot for Instant Access   | Makes decentralized tech accessible via familiar interfaces like Telegram. |
 | End-to-End Transparency           | Users track every action from submission to resolution in real time. |
-| Auto-Escalation with AI & SLA     | Escalation isn’t manual—it’s SLA-based and tracked algorithmically. |
+| Auto-Escalation with AI & SLA     | Escalation isn't manual—it's SLA-based and tracked algorithmically. |
 | ZK-Friendly Design                | Future-ready for Zero-Knowledge Proof integrations for privacy compliance. |
 
 ---
@@ -88,16 +116,16 @@ Our solution restores **public trust** in emergency services and law enforcement
 | 🌐 Frontend  | Next.js                                        |
 | 🤖 Bot       | Node.js + Telegram Bot API                     |
 | 🧾 Contracts | Solidity + Hardhat                             |
-| 🔗 Chain     | EDUCHAIN                                       |
+| 🔗 Chain     | Filecoin                                       |
 | 📦 Storage   | IPFS                                           |
 
 ---
 
-## 📜 Smart Contract Address
+## 📜 Smart Contract Addresses
 
-> **EDUCHAIN Testnet**  
-> `0xB339eae8a44256CB77DCbFe10138377cdeFaD5C9`
-> `0xa64fEE7cED2C1AcE815aA35F705968eeC27fD620`
+> **Filecoin Network**  
+> `0xf88C501cBA1DB713c080F886c74DB87ffd616FB2`
+> `0x4772dd21E368038682327fCa01E75f71666689cD`
 
 ---
 
@@ -114,8 +142,8 @@ Our solution restores **public trust** in emergency services and law enforcement
 ## ✉️ Contact
 
 Interested in partnerships, pilots, or open-source collaboration?  
-Drop us a message at [contact@email.com] or via Telegram!
+Drop us a message at [philosanjay5@gmail.com] or via Telegram!
 
 ---
 
-> _“Justice delayed is justice denied — we make justice real-time, secure, and decentralized.”_
+> _"Justice delayed is justice denied — we make justice real-time, secure, and decentralized."_
