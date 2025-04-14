@@ -79,12 +79,12 @@ export default function OwnerDashboardPage() {
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS!,
-        (await SecureFIRSystem).abi,
+        (await SecureFIRSystem).output.abi,
         signer
       )
       const contract1 = new ethers.Contract(
         CONTRACT_ADDRESS1!,
-        (await PoliceWalletManager).abi,
+        (await PoliceWalletManager).output.abi,
         signer
       )
 
@@ -166,7 +166,7 @@ export default function OwnerDashboardPage() {
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS1!,
-        PoliceWalletManager.abi,
+        PoliceWalletManager.output.abi,
         signer
       )
 loadPoliceOfficers(contract)
@@ -211,7 +211,7 @@ loadPoliceOfficers(contract)
       const signer = provider.getSigner()
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS1!,
-        PoliceWalletManager.abi,
+        PoliceWalletManager.output.abi,
         await signer
       )
 

@@ -203,7 +203,7 @@ export default function TaskDetailPage() {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS!,
-        SecureFIRSystem.abi,
+        SecureFIRSystem.output.abi,
         signer
       );
   

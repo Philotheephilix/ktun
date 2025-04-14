@@ -49,7 +49,7 @@ export  function Navbar() {
       const provider = new ethers.BrowserProvider(window.ethereum)
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS,
-        PoliceWalletManager.abi,
+        PoliceWalletManager.output.abi,
         provider
       )
 
