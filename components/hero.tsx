@@ -19,6 +19,11 @@ export function Hero() {
               File a Complaint
               
             </Button></Link>
+            <Link href="/call">
+            <Button className="bg-[#191A23] text-white hover:bg-[#fff] hover:text-black transition-colors">
+              Call and File
+              
+            </Button></Link>
           </div>
           <div className="relative">
             <OrbitalGraphic />
